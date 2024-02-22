@@ -9,18 +9,15 @@ import requests, time, random, json
 bot = Bot()
 
 lastTime = time.time()
+chatMessages = [{
+	"role": "system",
+	"content": "You are an angry ai. Respond to all messages as such."
+}]
 
 
 
 
 
-
-actions = ["rock","paper","scissors"]
-compliments = ["I like your shoes, ","Have a great day, ","You're a nice person, ","Nice shirt, ","You're funny, ","You deserve a cookie, ","You're cool, ","Insert compliment here, ","I like your profile picture, ","I hope you have a day as nice as you, ","I like your hair, "]
-prompts = []
-responses = []
-settingmode = False
-savedusername = ""
 
 def login(*_, **__):
 	print("login CB")
@@ -31,8 +28,9 @@ def login(*_, **__):
 
 
 def on_message(message, bot=bot):       
-	if message.user.username == bot.username: return
-	if message.chat != "deb492bb-aa32-44b0-9920-c7757f0af6b8": return
+    if message.user.username == bot.username: return
+    if message.chat != "deb492bb-aa32-44b0-9920-c7757f0af6b8": return
+    if time.time() - lastTime < 5: return
 	# '''
 	# if message.user.username == "Sharkydude":
 	# 	message.ctx.send_msg("Shut up, Sharky.")
@@ -47,27 +45,34 @@ def on_message(message, bot=bot):
 	# 	message.ctx.send_msg("Error")
 	# print("new message")
 	# print(message)
-	data = {
+    chatMessages.append({
+        "role": "user",
+		"content": f"Respond to the following message angrily: {message}"
+    })
+
+    data = {
 		"model": "gpt-3.5-turbo",
-		"messages": [{
-                            "role": "user",
-                            "content": f"This is a test. Respond to the following message: {message}"
-                    }]
+		"messages": chatMessages
 		
 		}
-	headers = {
-		"Content-Type": "application/json",
-		'Origin': 'https://gptcall.net/',
-        'Referer': 'https://gptcall.net/'
-		}
 
-	response = requests.post("https://reverse.mubi.tech/v1/chat/completions",json=data,headers=headers)
-	print(response)
-	if response:
-		responseText = response.text
-		print(type(responseText))
-		aiMessage = json.loads(responseText)["choices"][0]["message"]["content"]
-		bot.send_msg(f"@{message.user.username} {aiMessage}",to="deb492bb-aa32-44b0-9920-c7757f0af6b8")
+    headers = {
+        "Content-Type": "application/json",
+        'Origin': 'https://gptcall.net/',
+        'Referer': 'https://gptcall.net/'
+    }
+
+    response = requests.post("https://reverse.mubi.tech/v1/chat/completions",json=data,headers=headers)
+    print(response.text, response)
+    if response:
+        responseText = response.text
+        aiMessage = json.loads(responseText)["choices"][0]["message"]["content"]
+        bot.send_msg(f"@{message.user.username} {aiMessage}",to="deb492bb-aa32-44b0-9920-c7757f0af6b8")
+		
+        chatMessages.append({
+			"role": "assistant",
+            "content": aiMessage
+        })
 		#message.ctx.send_msg("aaaa")
 		#message.ctx.send_msg(responseText)
 
