@@ -1,6 +1,6 @@
 from MeowerBot import Bot, __version__
 from logging import basicConfig, DEBUG
-import requests, time, random
+import requests, time, random, json
 
 #basicConfig(level=DEBUG)
 
@@ -24,7 +24,7 @@ savedusername = ""
 
 def login(*_, **__):
 	print("login CB")
-	bot.send_msg("This is a test", to='9bf5bddd-cd1a-4c0d-a34c-31ae554ed4a7')
+	bot.send_msg("This is a test",to="deb492bb-aa32-44b0-9920-c7757f0af6b8")
 
 
 
@@ -32,7 +32,7 @@ def login(*_, **__):
 
 def on_message(message, bot=bot):       
 	if message.user.username == bot.username: return
-	if message.chat != "9bf5bddd-cd1a-4c0d-a34c-31ae554ed4a7": return
+	if message.chat != "deb492bb-aa32-44b0-9920-c7757f0af6b8": return
 	# '''
 	# if message.user.username == "Sharkydude":
 	# 	message.ctx.send_msg("Shut up, Sharky.")
@@ -66,7 +66,8 @@ def on_message(message, bot=bot):
 	if response:
 		responseText = response.text
 		print(type(responseText))
-		bot.send_msg(f"@{message.user.username} {responseText}",to="9bf5bddd-cd1a-4c0d-a34c-31ae554ed4a7")
+		aiMessage = json.loads(responseText)["choices"][0]["message"]["content"]
+		bot.send_msg(f"@{message.user.username} {aiMessage}",to="deb492bb-aa32-44b0-9920-c7757f0af6b8")
 		#message.ctx.send_msg("aaaa")
 		#message.ctx.send_msg(responseText)
 
