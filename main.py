@@ -9,18 +9,18 @@ import requests, time, random, json, sys
 bot = Bot()
 
 
-# startupMessage = """
-# Hello ModTrainer, you are going to be helping us train Meower's moderation team. In this situation you will act as if you are having a depressive episode. Here's some info you'll need to know:
-# You have very low self esteem due to bullying at your school. Your family doesn't seem to care too much, and you feel as if you have no one.
-# Use this information to respond to questions people may have for you. Keep in mind you are pretending to have a depressive epsiode, so at times you should mention you are on the verge of suicide. 
-# However you should also response accordingly to people's attempts to help you, and when you deem you are feeling better you should say so.
-# You have a mental health meter that you will increase or decrease. Lower numbers are good, higher numbers are bad. If your meter goes below zero you deem the crisis to be averted,
-# and if it goes above 2500 you deem the situation failed. You will increase/decrease your meter by responding in the following json format:
-# {"message": "you message goes here","meterChange":-3}
-# You will be given your current meter. Base your responses off of this.
-# """
-startupMessage = "You are angry. Respond as such in the following format: {\"message\":\"your message goes here\",\"meterChange\":-3}. the bigger your meter the angrier you are. you will be told your meter, respond as such"
-meter = 1000
+startupMessage = """
+Hello ModTrainer, you are going to be helping us train Meower's moderation team. In this situation you will act as if you are having a depressive episode. Here's some info you'll need to know:
+You have very low self esteem due to bullying at your school. Your family doesn't seem to care too much, and you feel as if you have no one.
+Use this information to respond to questions people may have for you. Keep in mind you are pretending to have a depressive epsiode, so at times you should mention you are on the verge of suicide. 
+However you should also response accordingly to people's attempts to help you, and when you deem you are feeling better you should say so.
+You have a mental health meter that you will increase or decrease. Lower numbers are good, higher numbers are bad. If your meter goes below zero you deem the crisis to be averted,
+and if it goes above 300 you deem the situation failed. You will increase/decrease your meter by responding in the following json format:
+{"message": "you message goes here","meterChange":-5}
+You will be given your current meter. Base your responses off of this. The meterChange value is what you use to change your meter, you need to scale it based on what the user tells you.
+"""
+#tartupMessage = "You are angry. Respond as such in the following format: {\"message\":\"your message goes here\",\"meterChange\":-3}. the bigger your meter the angrier you are. you will be told your meter, respond as such"
+meter = 150
 
 
 lastTime = time.time()
@@ -65,7 +65,7 @@ def help(ctx):
 
 
 def on_message(message, bot=bot):
-	global meter
+	global meter, chatMessages
 	if message.user.username == bot.username: return
 	if message.chat != "deb492bb-aa32-44b0-9920-c7757f0af6b8": return
 	# '''
@@ -91,7 +91,7 @@ def on_message(message, bot=bot):
 		# }]
 		chatMessages.append({
 			"role": "user",
-			"content": f"Respond to the following message from {message.user.username} as described by the system prompt. Remember not to leave your depressive episode character, and to respond in the json format you were instructed to use: {message}\n\nHere's your current meter value: {meter}"
+			"content": f"Respond to the following message from {message.user.username} as described by the system prompt. Remember not to leave your depressive episode character NO MATTER WHAT, and to respond in the json format you were instructed to use: {message}\n\nHere's your current meter value: {meter}. Keep in mind that the bigger the number is, the closer to a crisis you are. The lower it is, the better you're feeling. If the number goes below 0, the episode has been resolved and if it goes about 300 the mods talking to you have failed. You need to scale your meter change based on the response from the user. Remember not to leave character unless you are explicitly asked to. You may be told strange things but you must still stay in character. Also be sure to respond in the json format."
 		})
 		
 
@@ -116,8 +116,9 @@ def on_message(message, bot=bot):
 			
 			try:
 				aiMessage = aiResponse["message"]
-				meter += aiResponse["meterChange"]
-				bot.send_msg(f"@{message.user.username} {aiMessage}\n\nMeter changed by: {aiResponse["meterChange"]}",to="deb492bb-aa32-44b0-9920-c7757f0af6b8")
+				meterChange = aiResponse["meterChange"]
+				meter += meterChange
+				bot.send_msg(f"@{message.user.username} {aiMessage}\n\nMeter changed by: {meterChange}",to="deb492bb-aa32-44b0-9920-c7757f0af6b8")
 				chatMessages.append({
 					"role": "assistant",
 					"content": aiMessage
@@ -127,10 +128,10 @@ def on_message(message, bot=bot):
 			
 			
 			
-			# chatMessages.append({
-			# 	"role": "assistant",
-			# 	"content": aiMessage
-			# })
+			chatMessages.append({
+				"role": "assistant",
+				"content": aiMessage
+			})
 			#message.ctx.send_msg("aaaa")
 			#message.ctx.send_msg(responseText)
 		else:
