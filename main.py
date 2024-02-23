@@ -250,7 +250,12 @@ def on_message(message, bot=bot):
 bot.callback(login, cbid="login")
 bot.callback(on_message, cbid="message")
 
-bot.run("ModTrainingBot","derpyownsthisaccount123")
+
+fileobj = open("c:\\Users\\zman2\\OneDrive\\Documents\\vscode\\modbotpassword/pswd.txt") # env variables are for nerds. replace this with your file path.
+
+pswd = fileobj.read()
+
+bot.run("ModTrainingBot",pswd)
 
 
 
